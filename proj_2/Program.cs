@@ -123,69 +123,221 @@ for (;;)
     break;
 
     case 7:
-    Console.WriteLine("Simplifying the matrix by removing the smallest element (first in rows), not removing when 0 is present:");
+    Console.WriteLine("Hungarian Algorithm - solving assignment problem:");
     
+    // Create a copy of the matrix for the algorithm
+    int[,] workMatrix = new int[size, size];
     for (int i = 0; i < size; i++)
     {
-        int min = int.MaxValue;
-        int minIndex = -1;
-        bool hasZero = false;
-
         for (int j = 0; j < size; j++)
         {
-            if (matrix[i, j] == 0)
+            workMatrix[i, j] = matrix[i, j];
+        }
+    }
+    
+    Console.WriteLine("Original matrix:");
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            Console.Write(workMatrix[i, j] + "\t");
+        }
+        Console.WriteLine();
+    }
+    
+    // Step 1: Subtract row minimums
+    Console.WriteLine("\nStep 1: Subtract row minimums");
+    for (int i = 0; i < size; i++)
+    {
+        int min = workMatrix[i, 0];
+        for (int j = 1; j < size; j++)
+        {
+            if (workMatrix[i, j] < min)
             {
-                hasZero = true;
-                break;
-            }
-            if (matrix[i, j] < min)
-            {
-                min = matrix[i, j];
-                minIndex = j;
+                min = workMatrix[i, j];
             }
         }
+        
+        Console.WriteLine($"Row {i} minimum: {min}");
+        for (int j = 0; j < size; j++)
+        {
+            workMatrix[i, j] -= min;
+        }
+    }
+    
+    Console.WriteLine("After step 1:");
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            Console.Write(workMatrix[i, j] + "\t");
+        }
+        Console.WriteLine();
+    }
 
-        if (!hasZero && minIndex != -1)
+    // Step 2: Subtract column minimums
+    Console.WriteLine("\nStep 2: Subtract column minimums");
+    for (int j = 0; j < size; j++)
+    {
+        int min = workMatrix[0, j];
+        for (int i = 1; i < size; i++)
+        {
+            if (workMatrix[i, j] < min)
+            {
+                min = workMatrix[i, j];
+            }
+        }
+        
+        if (min > 0)
+        {
+            Console.WriteLine($"Column {j} minimum: {min}");
+            for (int i = 0; i < size; i++)
+            {
+                workMatrix[i, j] -= min;
+            }
+        }
+    }
+    
+    Console.WriteLine("After step 2:");
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            Console.Write(workMatrix[i, j] + "\t");
+        }
+        Console.WriteLine();
+    }
+
+    // Main algorithm loop
+    int iteration = 0;
+    while (true)
+    {
+        iteration++;
+        Console.WriteLine($"\nIteration {iteration}:");
+        
+        // Find maximum matching
+        int[] assignment = new int[size];
+        for (int i = 0; i < size; i++) assignment[i] = -1;
+        
+        bool[] rowMatched = new bool[size];
+        bool[] colMatched = new bool[size];
+        int matchCount = 0;
+        
+        // Try to find maximum matching using zeros
+        for (int i = 0; i < size; i++)
         {
             for (int j = 0; j < size; j++)
             {
-                matrix[i, j] -= min;
+                if (workMatrix[i, j] == 0 && !rowMatched[i] && !colMatched[j])
+                {
+                    assignment[i] = j;
+                    rowMatched[i] = true;
+                    colMatched[j] = true;
+                    matchCount++;
+                    break;
+                }
             }
         }
-    }
-
-    for (int j = 0; j < size; j++)
-    {
-        int min = int.MaxValue;
-        int minIndex = -1;
-        bool hasZero = false;
-
+        
+        Console.WriteLine($"Found {matchCount} matches");
+        
+        if (matchCount == size)
+        {
+            // Found optimal assignment
+            int totalCost = 0;
+            Console.WriteLine("\nOptimal assignment found:");
+            for (int i = 0; i < size; i++)
+            {
+                Console.WriteLine($"Worker {i+1} -> Job {assignment[i]+1}, Cost: {matrix[i, assignment[i]]}");
+                totalCost += matrix[i, assignment[i]];
+            }
+            Console.WriteLine($"Total assignment cost: {totalCost}");
+            break;
+        }
+        
+        // Step 3: Find minimum vertex cover using König's theorem
+        bool[] rowCovered = new bool[size];
+        bool[] colCovered = new bool[size];
+        
+        // Start with unmatched rows
+        bool[] visited = new bool[size];
         for (int i = 0; i < size; i++)
         {
-            if (matrix[i, j] == 0)
+            if (!rowMatched[i])
             {
-                hasZero = true;
-                break;
-            }
-            if (matrix[i, j] < min)
-            {
-                min = matrix[i, j];
-                minIndex = i;
+                DfsAlternatingPath(workMatrix, assignment, i, visited, rowCovered, colCovered, size);
             }
         }
-
-        if (!hasZero && minIndex != -1)
+        
+        // Apply König's theorem: cover unvisited rows and visited columns
+        for (int i = 0; i < size; i++)
+        {
+            if (!visited[i]) rowCovered[i] = true;
+        }
+        
+        for (int j = 0; j < size; j++)
         {
             for (int i = 0; i < size; i++)
             {
-                matrix[i, j] -= min;
+                if (visited[i] && workMatrix[i, j] == 0)
+                {
+                    colCovered[j] = true;
+                    break;
+                }
             }
         }
+        
+        // Count covering lines
+        int lineCount = 0;
+        for (int i = 0; i < size; i++) if (rowCovered[i]) lineCount++;
+        for (int j = 0; j < size; j++) if (colCovered[j]) lineCount++;
+        
+        Console.WriteLine($"Number of covering lines: {lineCount}");
+        
+        // Step 4: Create additional zeros
+        Console.WriteLine("Step 4: Create additional zeros");
+        
+        // Find minimum uncovered element
+        int minUncovered = int.MaxValue;
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                if (!rowCovered[i] && !colCovered[j] && workMatrix[i, j] < minUncovered)
+                {
+                    minUncovered = workMatrix[i, j];
+                }
+            }
+        }
+        
+        Console.WriteLine($"Smallest uncovered element: {minUncovered}");
+
+        // Adjust matrix
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                if (!rowCovered[i] && !colCovered[j])
+                {
+                    workMatrix[i, j] -= minUncovered;
+                }
+                else if (rowCovered[i] && colCovered[j])
+                {
+                    workMatrix[i, j] += minUncovered;
+                }
+            }
+        }
+        
+        Console.WriteLine("Matrix after adjustment:");
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                Console.Write(workMatrix[i, j] + "\t");
+            }
+            Console.WriteLine();
+        }
     }
-    
-    Console.WriteLine("Matrix simplified.");
-
-
     break;
 
     case 9:
@@ -195,4 +347,34 @@ for (;;)
         Console.WriteLine("Invalid option.");
         break;
 }
+}
+
+// Add this helper method outside the switch statement (after the for loop)
+static void DfsAlternatingPath(int[,] matrix, int[] assignment, int row, bool[] visited, 
+                              bool[] rowCovered, bool[] colCovered, int size)
+{
+    if (visited[row]) return;
+    visited[row] = true;
+    
+    for (int j = 0; j < size; j++)
+    {
+        if (matrix[row, j] == 0)
+        {
+            // Find which row is matched to column j
+            int matchedRow = -1;
+            for (int i = 0; i < size; i++)
+            {
+                if (assignment[i] == j)
+                {
+                    matchedRow = i;
+                    break;
+                }
+            }
+            
+            if (matchedRow != -1)
+            {
+                DfsAlternatingPath(matrix, assignment, matchedRow, visited, rowCovered, colCovered, size);
+            }
+        }
+    }
 }
