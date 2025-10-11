@@ -1,0 +1,371 @@
+\documentclass[a4paper,12pt]{article}
+
+\newcommand*{\fg}[4][\textwidth]{
+    \begin{figure}[!htb]
+        \begin{center}
+            \includegraphics[width=#1]{#2}
+            \caption{#3}
+            \label{rys:#4}
+        \end{center}
+    \end{figure}
+}
+
+%komenda do oznaczania elementów w tekście
+% Parametr #1: Typ elementu (rys, lst)
+% Parametr #2: Identyfikator elementu
+\newcommand*{\Oznacz}[2]{
+\ref{#1:#2} (s. \pageref{#1:#2})
+}
+
+%komenda do oznaczania zdjęć w tekście
+% Parametr #1 (opcjonalny): Nazwa typu elementu (domyślnie Rysunek)
+% Parametr #2: Identyfikator rysunku
+\newcommand*{\OznaczZdjecie}[2][Rys.]{
+#1 \Oznacz{rys}{#2}
+}
+
+%komenda do oznaczania kodu w tekście
+% Parametr #1: Identyfikator kodu
+\newcommand*{\OznaczKod}[1]{
+\Oznacz{lst}{#1}
+}
+
+%komenda do wstawiania listingów kodu
+% Parametr #1: Opis listingu wyświetlany pod listingiem
+% Parametr #2: Identyfikator listingu
+% Parametr #3: Ścieżka do pliku z kodem
+\newcommand*{\ListingFile}[3]{
+    \lstinputlisting[caption=#1, label={lst:#2}, language=C++]{#3}
+}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[polish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{xcolor}
+\geometry{margin=0.5in}
+
+\lstdefinestyle{csharpstyle}{
+    language=[Sharp]C,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue!90!black}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{green!70!black},
+    numbers=left,
+    numberstyle=\ttfamily\tiny\color{gray}\raisebox{0.5ex},
+    stepnumber=1,
+    numbersep=5pt,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!5},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    captionpos=b,
+    linewidth=\linewidth,
+    xleftmargin=20pt,
+    xrightmargin=5pt,
+    framexleftmargin=15pt,
+    framexrightmargin=5pt,
+    rulecolor=\color{blue!30},
+    literate=  % Polish characters preserved
+      {ą}{{\k{a}}}1 
+      {ć}{{\'c}}1 
+      {ę}{{\k{e}}}1 
+      {ł}{{\l}}1 
+      {ń}{{\'n}}1
+      {ó}{{\'o}}1 
+      {ś}{{\'s}}1 
+      {ź}{{\'z}}1 
+      {ż}{{\.{z}}}1
+      {Ą}{{\k{A}}}1 
+      {Ć}{{\'C}}1 
+      {Ę}{{\k{E}}}1 
+      {Ł}{{\L}}1
+      {Ń}{{\'N}}1 
+      {Ó}{{\'O}}1 
+      {Ś}{{\'S}}1 
+      {Ź}{{\'Z}}1 
+      {Ż}{{\.{Z}}}1,
+    emph={Console, WriteLine, ReadLine, ToString, int, string, double, float, bool, class, interface, 
+          public, private, protected, static, void, new, get, set, using, namespace, return, if, else, 
+          for, foreach, while, do, try, catch, finally, switch, case, break, continue, this, base, 
+          var, List, Dictionary, Task, async, await},
+    emphstyle=\color{magenta!70!black},
+    lineskip=2pt,
+    aboveskip=10pt,
+    belowskip=10pt,
+    numberblanklines=false
+}
+
+\captionsetup[lstlisting]{justification=centering}
+
+% \captionsetup{labelformat=empty} % Usunięcie numeracji tabeli
+
+% Define an invisible box for phantom text
+\newcommand{\invisiblephantom}{\phantom{(X)}}
+
+\begin{document}
+% Please add the following required packages to your document preamble:
+% \usepackage{graphicx}
+% Please add the following required packages to your document preamble:
+% \usepackage{graphicx}
+\begin{table}[]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|lll|}
+\hline
+\multicolumn{3}{|c|}{\begin{tabular}[c]{@{}c@{}}Wydział Nauk Inżynieryjnych ANS w Nowym Sączu \\ Optymalizacja dyskretna - projekt\end{tabular}}                                                                                                              \\ \hline
+\multicolumn{2}{|l|}{\begin{tabular}[c]{@{}l@{}}Temat: Programowanie dyskretne. Wprowadzenie do programowania w języku c\#.\\ Operacje na tablicach, funkcje.\end{tabular}}                     & \begin{tabular}[c]{@{}l@{}}Symbol:\\ OD\_P1\end{tabular}    \\ \hline
+\multicolumn{1}{|l|}{\begin{tabular}[c]{@{}l@{}}Nazwisko i imię:\\ \\ Ryczek Arkadiusz\end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}}Ocena sprawozdania:\\  \\ \invisiblephantom\end{tabular}} & \begin{tabular}[c]{@{}l@{}}Zaliczenie:\\ \\  \invisiblephantom\end{tabular} \\ \hline
+\multicolumn{1}{|l|}{\begin{tabular}[c]{@{}l@{}}Data wykonania\\ ćwiczenia:\end{tabular}}            & \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}Oceniane efekty uczenia się:\\ EUU1=……………… ,EUU2=……………… ,EUU3=…………………, EUK1=………………….\end{tabular}}      \\ \hline
+\end{tabular}%
+}
+\end{table}
+\section*{Wstęp}
+Celem zajęć było zapoznanie się z podstawowymi elementami języka C\# oraz środowiskiem programistycznym Visual Studio Code (przygotowanie IDE do pracy z C\#, pobranie odpowiednich rozszerzeń, .NET itd.). W ramach ćwiczeń wykonano kilka prostych programów, które miały na celu utrwalenie poznanych konstrukcji językowych, a konkretnie operacji na tablicach oraz zapisu/odczytu danych z plików tekstowych. Poniżej przedstawiono opis wykonanych zadań oraz kod źródłowy poszczególnych programów.
+\section*{Zadanie 1}
+\begin{quote}
+Napisz program w języku c\#, który wczytuje elementy numeryczne do tablicy dwuwymiarowej nxn. Wartości można podać z klawiatury oraz wczytać liczby losowe z zakresu od 0-100. Program posiada menu wyboru:
+\begin{enumerate}
+    \item Wczytaj klawiatura,
+    \item Wczytaj losowe,
+    \item Wyświetl tablice,
+    \item ESC - wyjście.
+\end{enumerate}
+\end{quote}
+Poniżej przedstawiono kod źródłowy programu realizującego powyższe zadanie.
+\begin{lstlisting}[style=csharpstyle, caption={Kod źródłowy programu realizującego zadanie 1}, label={lst:zad1}]
+#nullable disable
+
+Console.WriteLine("Enter the size of the matrix:");
+int size = int.Parse(Console.ReadLine());
+int[,] matrix = new int[size, size];
+Random rand = new Random();
+
+int option;
+
+for (;;)
+{
+    Console.WriteLine(
+        "1. Load matrix with your own values\n2. Load matrix with random values\n3. Display the matrix\n4. Exit"
+    );
+    option = int.Parse(Console.ReadLine());
+
+    switch (option)
+    {
+        case 1:
+            Console.WriteLine("Input your own values...");
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    Console.Write($"Enter value for position [{i},{j}]: ");
+                    matrix[i, j] = int.Parse(Console.ReadLine());
+                }
+            }
+            break;
+        case 2:
+            Console.WriteLine("Loading random values.");
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    matrix[i, j] = rand.Next(1, 101);
+                }
+            }
+            break;
+
+        case 3:
+            Console.WriteLine("Displaying the matrix:");
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    Console.Write(matrix[i, j] + "\t");
+                }
+                Console.WriteLine();
+            }
+            break;
+        case 4:
+            Console.WriteLine("Exiting...");
+            return;
+        default:
+            Console.WriteLine("Invalid option.");
+            break;
+    }
+}
+\end{lstlisting}
+
+Program implementuje menu wyboru umożliwiające użytkownikowi wczytanie danych do tablicy dwuwymiarowej. Funkcjonalności programu obejmują:
+
+\begin{enumerate}
+    \item Wprowadzenie wartości z klawiatury - użytkownik może ręcznie wprowadzić wartości dla każdej pozycji w tablicy,
+    \item Wygenerowanie liczb losowych z zakresu 1-100 - program automatycznie wypełnia tablicę losowymi wartościami,
+    \item Wyświetlenie zawartości tablicy - program prezentuje aktualną zawartość tablicy w formie czytelnej dla użytkownika,
+    \item Wyjście z programu - zakończenie działania aplikacji.
+\end{enumerate}
+
+Program działa w pętli nieskończonej, umożliwiając wielokrotne wykonywanie operacji do momentu wyboru opcji wyjścia.
+
+\section*{Zadanie 2}
+\begin{quote}
+Napisz funkcję do odczytu i zapisu danych z pliku „p1.txt”. Wklej do sprawozdania zrzut ekranu z działającym
+programem.
+Menu:
+\begin{enumerate}
+    \item Wczytaj klawiatura,
+    \item Wczytaj losowe,
+    \item Wyświetl tablice,
+    \item Wczytaj z pliku,
+    \item Zapisz do pliku,
+    \item ESC wyjście.
+\end{enumerate}
+\end{quote}
+
+Poniżej przedstawiono kod źródłowy programu realizującego powyższe zadanie.
+\begin{lstlisting}[style=csharpstyle, caption={Kod źródłowy programu realizującego zadanie 2}, label={lst:zad2}]
+#nullable disable
+using System.IO;
+
+Console.WriteLine("Enter the size of the matrix:");
+int size = int.Parse(Console.ReadLine());
+int[,] matrix = new int[size, size];
+Random rand = new Random();
+
+int option;
+
+for (; ; )
+{
+    Console.WriteLine(
+        "1. Load matrix with your own values\n2. Load matrix with random values\n3. Display the matrix\n4. Load matrix from file\n5. Save matrix to file\n6. Exit"
+    );
+    option = int.Parse(Console.ReadLine());
+
+    switch (option)
+    {
+        case 1:
+            Console.WriteLine("Input your own values...");
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    Console.Write($"Enter value for position [{i},{j}]: ");
+                    matrix[i, j] = int.Parse(Console.ReadLine());
+                }
+            }
+            break;
+        case 2:
+            Console.WriteLine("Loading random values.");
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    matrix[i, j] = rand.Next(1, 101);
+                }
+            }
+            break;
+
+        case 3:
+            Console.WriteLine("Displaying the matrix:");
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    Console.Write(matrix[i, j] + "\t");
+                }
+                Console.WriteLine();
+            }
+            break;
+        case 4:
+            try
+            {
+                Console.Write("Enter filename (e.g., p1.txt): ");
+                string filename = Console.ReadLine();
+                StreamReader sr = new StreamReader(filename);
+
+                int fileSize = int.Parse(sr.ReadLine());
+
+                if (fileSize != size)
+                {
+                    size = fileSize;
+                    matrix = new int[size, size];
+                }
+
+                for (int i = 0; i < size; i++)
+                {
+                    string[] values = sr.ReadLine().Split(' ');
+                    for (int j = 0; j < size; j++)
+                    {
+                        matrix[i, j] = int.Parse(values[j]);
+                    }
+                }
+
+                sr.Close();
+                Console.WriteLine("Matrix loaded successfully from file.");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: " + e.Message);
+            }
+            break;
+        case 5:
+            try
+            {
+                StreamWriter sw = new StreamWriter("p1.txt");
+
+                sw.WriteLine(size);
+
+                for (int i = 0; i < size; i++)
+                {
+                    for (int j = 0; j < size; j++)
+                    {
+                        sw.Write(matrix[i, j]);
+                        if (j < size - 1)
+                            sw.Write(" ");
+                    }
+                    sw.WriteLine();
+                }
+
+                sw.Close();
+                Console.WriteLine("Matrix saved successfully to p1.txt");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: " + e.Message);
+            }
+            break;
+
+        case 6:
+            Console.WriteLine("Exiting...");
+            return;
+        default:
+            Console.WriteLine("Invalid option.");
+            break;
+    }
+}
+\end{lstlisting}
+
+Program rozszerza funkcjonalność z zadania pierwszego o operacje na plikach. Dodano dwie nowe opcje menu:
+
+\begin{enumerate}
+    \item[4.] Wczytanie tablicy z pliku - program odczytuje rozmiar tablicy oraz jej zawartość z pliku tekstowego. Format pliku zawiera w pierwszej linii rozmiar tablicy, a w kolejnych liniach wartości elementów oddzielone spacjami,
+    \item[5.] Zapis tablicy do pliku - program zapisuje aktualną zawartość tablicy do pliku „p1.txt" w formacie zgodnym z opcją odczytu.
+\end{enumerate}
+
+Operacje na plikach są zabezpieczone mechanizmem obsługi wyjątków (try-catch), co zapewnia stabilność działania programu w przypadku problemów z dostępem do pliku lub nieprawidłowym formatem danych.
+
+\section*{Podsumowanie}
+W ramach ćwiczeń zapoznano się z podstawami programowania w języku C\#. Wykonane zadania pozwoliły na praktyczne zastosowanie poznanych konstrukcji językowych, takich jak operacje na tablicach oraz obsługa plików tekstowych, co będzie przydatne na dalszych zajęciach z optymalizacji dyskretnej.
+
+\end{document}

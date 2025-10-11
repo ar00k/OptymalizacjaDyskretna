@@ -1,0 +1,260 @@
+{
+    "telemetry.telemetryLevel": "off",
+    "css.format.spaceAroundSelectorSeparator": true,
+    "less.format.spaceAroundSelectorSeparator": true,
+    "latex-workshop.latex.recipe.default": "lastUsed",
+    // "latex-workshop.latex.autoClean.run": "onBuilt",
+    "latex-workshop.latex.build.rootfileInStatus": true,
+    "latex-workshop.linting.chktex.enabled": true,
+    "latex-workshop.linting.lacheck.enabled": true,
+    "latex-workshop.latex.tools": [
+        {
+            "name": "latexmk",
+            "command": "latexmk",
+            "args": [
+                // "latexmk",
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-pdf",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ],
+            "env": {}
+
+        },
+        {
+            "name": "lualatex",
+            "command": "lualatex",
+            "args": [
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "--shell-escape",
+                "-synctex=1",
+                    "-output-directory=%OUTDIR%",
+                "%DOCFILE%"
+            ]
+        },
+        {
+            "name": "lualatex-draft",
+            "command": "lualatex",
+            "args": [
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "--shell-escape",
+                "-draftmode",
+                "-output-directory=%OUTDIR%",
+                "%DOCFILE%"
+            ]
+        },
+        {
+            "name": "pdflatex",
+            "command": "pdflatex",
+            "args": [
+                "--interaction=nonstopmode",
+                "-file-line-error",
+                "--shell-escape",
+                "-synctex=1",
+                    "-output-directory=%OUTDIR%",
+                "%DOCFILE%"
+            ]
+        },
+        {
+            "name": "pdflatex-DEBUG",
+            "command": "texfot",
+            "args": [
+                "pdflatex",
+                "--interaction=nonstopmode",
+                "-file-line-error",
+                "--shell-escape",
+                "-synctex=1",
+                    "-output-directory=%OUTDIR%",
+                "%DOCFILE%"
+            ]
+        },
+        {
+            "name": "pdflatex-draft",
+            "command": "pdflatex",
+            "args": [
+                "--interaction=nonstopmode",
+                "-file-line-error",
+                "--shell-escape",
+                "-draftmode",
+                "-synctex=1",
+                    "-output-directory=%OUTDIR%",
+                "%DOCFILE%"
+            ]
+        },
+        {
+            "name": "pdflatex-draft-DEBUG",
+            "command": "texfot",
+            "args": [
+                "pdflatex",
+                "--interaction=nonstopmode",
+                "-file-line-error",
+                "--shell-escape",
+                "-draftmode",
+                "-synctex=1",
+                "-output-directory=%OUTDIR%",
+                "%DOCFILE%"
+            ]
+        },
+        {
+            "name": "biber",
+            "command": "biber",
+            "args": [
+                "%OUTDIR%/%DOCFILE%"
+            ]
+        }
+    ],
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "[Without biber] pdflatex-DEBUG",
+            "tools": [
+                "pdflatex-draft-DEBUG",
+                "pdflatex-draft-DEBUG",
+                "pdflatex-DEBUG"
+            ]
+        },
+        {
+            "name": "pdflatex-draft -> biber -> pdflatex-draft -> pdflatex",
+            "tools": [
+                "pdflatex-draft",
+                "biber",
+                "pdflatex-draft",
+                "pdflatex"
+            ]
+        },
+        {
+            "name": "pdflatex-DEBUG",
+            "tools": [
+                "pdflatex-draft-DEBUG",
+                "biber",
+                "pdflatex-draft-DEBUG",
+                "pdflatex-DEBUG"
+            ]
+        },
+        {
+            "name": "[Without biber] pdflatex-draft -> pdflatex-draft -> pdflatex",
+            "tools": [
+                "pdflatex-draft",
+                "pdflatex-draft",
+                "pdflatex"
+            ]
+        },
+        {
+            "name": "lualatex-draft -> biber -> lualatex*2",
+            "tools": [
+                "lualatex-draft",
+                "biber",
+                "lualatex",
+                "lualatex"
+            ]
+        },
+        {
+            "name": "[Without biber] -> lualatex*2",
+            "tools": [
+                "lualatex",
+                "lualatex"
+            ]
+        },
+        {
+            "name": "latexmk",
+            "tools": [
+                "latexmk"
+            ]
+        }
+    ],
+    "[latex]": {
+        "editor.defaultFormatter": "James-Yu.latex-workshop"
+    },
+    "latex-workshop.latex.clean.fileTypes": [
+        "*.aux",
+        "*.bbl*",
+        "*.bbl",
+        "*.blg",
+        "*.idx",
+        "*.ind",
+        "*.lof",
+        "*.lot",
+        "*.out",
+        "*.toc",
+        "*.acn",
+        "*.acr",
+        "*.alg",
+        "*.glg",
+        "*.glo",
+        "*.gls",
+        "*.fls",
+        // "*.log",
+        "*.fdb_latexmk",
+        "*.snm",
+        "*.synctex(busy)",
+        "*.synctex.gz(busy)",
+        "*.nav"
+    ],
+    "editor.formatOnSave": false,
+    "latex-workshop.synctex.synctexjs.enabled": true,
+    "latex-workshop.synctex.afterBuild.enabled": true,
+    "latex-workshop.view.pdf.viewer": "tab",
+    "latex-workshop.synctex.path": "synctex",
+    "latex-workshop.latex.autoBuild.cleanAndRetry.enabled": false,
+    "latex-workshop.latex.clean.method": "glob",
+    "terminal.integrated.profiles.linux": {
+        "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+        },
+        "zsh": {
+            "path": "zsh",
+            "icon": "terminal"
+        },
+        "fish": {
+            "path": "fish",
+            "icon": "terminal"
+        }
+    },
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.enablePersistentSessions": false,
+    "ltex.language": "pl-PL",
+    "latex-workshop.hover.preview.enabled": true,
+    "remote.autoForwardPortsSource": "hybrid",
+    "intellisense.includegraphics.preview.enabled": true,
+    "latexMacros.macrosList": [
+        {
+            "signature": "\\fg{PATH}{Caption}{Identifier}",
+            "extensions": [
+                "png",
+                "jpg"
+            ]
+        },
+        {
+            "signature": "\\fg[width]{PATH}{Caption}{Identifier}",
+            "extensions": [
+                "png",
+                "jpg"
+            ]
+        },
+        {
+            "signature": "\\ListingFile{Caption}{Identifier}{PATH}",
+            "extensions": [
+                "txt",
+                "c",
+                "cpp",
+                "m",
+                "py"
+            ]
+        }
+    ],
+    "latex-utilities.countWord.format": "${wordsBody} Words",
+    "editor.minimap.enabled": false,
+    // "latex-workshop.docker.enabled": true,
+    // "latex-workshop.docker.image.latex": "ghcr.io/xu-cheng/texlive-full",
+    // "latex-workshop.hover.preview.newcommand.newcommandFile": "preambula_ustawienia.tex",
+    "latex-workshop.latex.outDir": "%DIR%/pdfs",
+    "[sql]": {
+        "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
+    },
+    "git.autofetch": true
+    // "latex-workshop.hover.preview.newcommand.newcommandFile": "./dokumentacja/preambula_ustawienia.tex"
+}
