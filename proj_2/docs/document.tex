@@ -1,0 +1,453 @@
+\documentclass[a4paper,12pt]{article}
+
+\newcommand*{\fg}[4][\textwidth]{
+    \begin{figure}[!htb]
+        \begin{center}
+            \includegraphics[width=#1]{#2}
+            \caption{#3}
+            \label{rys:#4}
+        \end{center}
+    \end{figure}
+}
+
+%komenda do oznaczania elementów w tekście
+% Parametr #1: Typ elementu (rys, lst)
+% Parametr #2: Identyfikator elementu
+\newcommand*{\Oznacz}[2]{
+\ref{#1:#2} (s. \pageref{#1:#2})
+}
+
+%komenda do oznaczania zdjęć w tekście
+% Parametr #1 (opcjonalny): Nazwa typu elementu (domyślnie Rysunek)
+% Parametr #2: Identyfikator rysunku
+\newcommand*{\OznaczZdjecie}[2][Rys.]{
+#1 \Oznacz{rys}{#2}
+}
+
+%komenda do oznaczania kodu w tekście
+% Parametr #1: Identyfikator kodu
+\newcommand*{\OznaczKod}[1]{
+\Oznacz{lst}{#1}
+}
+
+%komenda do wstawiania listingów kodu
+% Parametr #1: Opis listingu wyświetlany pod listingiem
+% Parametr #2: Identyfikator listingu
+% Parametr #3: Ścieżka do pliku z kodem
+\newcommand*{\ListingFile}[3]{
+    \lstinputlisting[caption=#1, label={lst:#2}, language=C++]{#3}
+}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[polish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\pagestyle{empty} % no global footer
+\geometry{margin=0.5in}
+
+\lstdefinestyle{csharpstyle}{
+    language=[Sharp]C,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue!90!black}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{green!70!black},
+    numbers=left,
+    numberstyle=\ttfamily\tiny\color{gray}\raisebox{0.5ex},
+    stepnumber=1,
+    numbersep=5pt,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!5},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    captionpos=b,
+    linewidth=\linewidth,
+    xleftmargin=20pt,
+    xrightmargin=5pt,
+    framexleftmargin=15pt,
+    framexrightmargin=5pt,
+    rulecolor=\color{blue!30},
+    literate=  % Polish characters preserved
+      {ą}{{\k{a}}}1 
+      {ć}{{\'c}}1 
+      {ę}{{\k{e}}}1 
+      {ł}{{\l}}1 
+      {ń}{{\'n}}1
+      {ó}{{\'o}}1 
+      {ś}{{\'s}}1 
+      {ź}{{\'z}}1 
+      {ż}{{\.{z}}}1
+      {Ą}{{\k{A}}}1 
+      {Ć}{{\'C}}1 
+      {Ę}{{\k{E}}}1 
+      {Ł}{{\L}}1
+      {Ń}{{\'N}}1 
+      {Ó}{{\'O}}1 
+      {Ś}{{\'S}}1 
+      {Ź}{{\'Z}}1 
+      {Ż}{{\.{Z}}}1,
+    emph={Console, WriteLine, ReadLine, ToString, int, string, double, float, bool, class, interface, 
+          public, private, protected, static, void, new, get, set, using, namespace, return, if, else, 
+          for, foreach, while, do, try, catch, finally, switch, case, break, continue, this, base, 
+          var, List, Dictionary, Task, async, await},
+    emphstyle=\color{magenta!70!black},
+    lineskip=2pt,
+    aboveskip=10pt,
+    belowskip=10pt,
+    numberblanklines=false
+}
+
+\captionsetup[lstlisting]{justification=centering}
+
+% \captionsetup{labelformat=empty} % Usunięcie numeracji tabeli
+
+% Define an invisible box for phantom text
+\newcommand{\invisiblephantom}{\phantom{(X)}}
+
+\begin{document}
+% Please add the following required packages to your document preamble:
+% \usepackage{graphicx}
+% Please add the following required packages to your document preamble:
+% \usepackage{graphicx}
+\begin{table}[]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|lll|}
+\hline
+\multicolumn{3}{|c|}{\begin{tabular}[c]{@{}c@{}}Wydział Nauk Inżynieryjnych ANS w Nowym Sączu \\ Optymalizacja dyskretna - projekt\end{tabular}}                                                                                                              \\ \hline
+\multicolumn{2}{|l|}{\begin{tabular}[c]{@{}l@{}}Temat: Programowanie dyskretne - zagadnienie przydziału. Rozwiązanie za pomocą algorytmu węgierskiego.\\ Operacje na tablicach, funkcje.\end{tabular}}                     & \begin{tabular}[c]{@{}l@{}}Symbol:\\ OD\_P1\end{tabular}    \\ \hline
+\multicolumn{1}{|l|}{\begin{tabular}[c]{@{}l@{}}Nazwisko i imię:\\ \\ Ryczek Arkadiusz\end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}}Ocena sprawozdania:\\  \\ \invisiblephantom\end{tabular}} & \begin{tabular}[c]{@{}l@{}}Zaliczenie:\\ \\  \invisiblephantom\end{tabular} \\ \hline
+\multicolumn{1}{|l|}{\begin{tabular}[c]{@{}l@{}}Data wykonania\\ ćwiczenia:\end{tabular}}            & \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}Oceniane efekty uczenia się:\\ EUU1=……………… ,EUU2=……………… ,EUU3=…………………, EUK1=………………….\end{tabular}}      \\ \hline
+\end{tabular}%
+}
+\end{table}
+\section*{Wstęp}
+Celem laboratoriów była implementacja algorytmu węgierskiego do rozwiązywania problemu przydziału zadań pracownikom. Problem przydziału polega na znalezieniu optymalnego przypisania zadań do pracowników tak, aby zminimalizować całkowity koszt lub zmaksymalizować całkowitą efektywność. Algorytm węgierski jest efektywną metodą rozwiązania tego problemu. 
+\section*{Zadanie 1}
+Jako że zadanie 1 jest takie samo jak na wcześniejszych laboratoriach, nie będę go tu powtarzał, za to zamieszczę zrzuty ekranu(\OznaczZdjecie[Rys.]{task1}) z jego działania.
+\fg[0.7\linewidth]{images/task1.png}{Menu programu.}{task1}
+\section*{Zadanie 2 i 3}
+Zadania 2 i 3 zostały połączone w jeden program, który implementuje kompletny algorytm węgierski do rozwiązywania zagadnienia przydziału.
+
+\subsection*{Zadanie 2}
+Zadanie polega na napisaniu funkcji, która dokona redukcji wyczytanej tablicy - pierwszy i drugi krok algorytmu węgierskiego. Po redukcji w każdym wierszu i kolumnie powinno być przynajmniej jedno zero, a pozostałe elementy są nieujemne.
+
+Implementacja obejmuje:
+\begin{itemize}
+    \item Redukcję wierszową - odejmowanie minimum z każdego wiersza
+    \item Redukcję kolumnową - odejmowanie minimum z każdej kolumny
+\end{itemize}
+
+\subsection*{Zadanie 3}
+Zadanie polega na napisaniu kompletnego programu rozwiązującego zagadnienie przydziału przy użyciu algorytmu węgierskiego. Program implementuje wszystkie kroki algorytmu:
+
+\begin{itemize}
+    \item Redukcję tablicy (zadanie 2)
+    \item Znajdowanie maksymalnego skojarzenia
+    \item Tworzenie linii pokrywających wszystkie zera
+    \item Modyfikację tablicy w przypadku niepełnego pokrycia
+    \item Znajdowanie optymalnego przydziału
+\end{itemize}
+
+
+\begin{lstlisting}[style=csharpstyle, caption={Implementacja algorytmu węgierskiego do rozwiązania zagadnienia przydziału.}, label={lst:task3}]
+    Console.WriteLine("Hungarian Algorithm - solving assignment problem:");
+    
+    // Create a copy of the matrix for the algorithm
+    int[,] workMatrix = new int[size, size];
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            workMatrix[i, j] = matrix[i, j];
+        }
+    }
+    
+    Console.WriteLine("Original matrix:");
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            Console.Write(workMatrix[i, j] + "\t");
+        }
+        Console.WriteLine();
+    }
+    
+    // Step 1: Subtract row minimums
+    Console.WriteLine("\nStep 1: Subtract row minimums");
+    for (int i = 0; i < size; i++)
+    {
+        int min = workMatrix[i, 0];
+        for (int j = 1; j < size; j++)
+        {
+            if (workMatrix[i, j] < min)
+            {
+                min = workMatrix[i, j];
+            }
+        }
+        
+        Console.WriteLine($"Row {i} minimum: {min}");
+        for (int j = 0; j < size; j++)
+        {
+            workMatrix[i, j] -= min;
+        }
+    }
+    
+    Console.WriteLine("After step 1:");
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            Console.Write(workMatrix[i, j] + "\t");
+        }
+        Console.WriteLine();
+        }
+        
+        // Step 2: Subtract column minimums
+        Console.WriteLine("\nStep 2: Subtract column minimums");
+        for (int j = 0; j < size; j++)
+        {
+        int min = workMatrix[0, j];
+        for (int i = 1; i < size; i++)
+        {
+            if (workMatrix[i, j] < min)
+            {
+                min = workMatrix[i, j];
+            }
+        }
+        
+        if (min > 0)
+        {
+            Console.WriteLine($"Column {j} minimum: {min}");
+            for (int i = 0; i < size; i++)
+            {
+                workMatrix[i, j] -= min;
+            }
+        }
+    }
+    
+    Console.WriteLine("After step 2:");
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            Console.Write(workMatrix[i, j] + "\t");
+        }
+        Console.WriteLine();
+    }
+
+    // Main algorithm loop
+    int iteration = 0;
+    while (true)
+    {
+        iteration++;
+        Console.WriteLine($"\nIteration {iteration}:");
+        
+        // Find maximum matching
+        int[] assignment = new int[size];
+        for (int i = 0; i < size; i++) assignment[i] = -1;
+        
+        bool[] rowMatched = new bool[size];
+        bool[] colMatched = new bool[size];
+        int matchCount = 0;
+        
+        // Try to find maximum matching using zeros
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                if (workMatrix[i, j] == 0 && !rowMatched[i] && !colMatched[j])
+                {
+                    assignment[i] = j;
+                    rowMatched[i] = true;
+                    colMatched[j] = true;
+                    matchCount++;
+                    break;
+                }
+            }
+        }
+        
+        Console.WriteLine($"Found {matchCount} matches");
+        
+        if (matchCount == size)
+        {
+            // Found optimal assignment
+            int totalCost = 0;
+            Console.WriteLine("\nOptimal assignment found:");
+            for (int i = 0; i < size; i++)
+            {
+                Console.WriteLine($"Worker {i+1} -> Job {assignment[i]+1}, Cost: {matrix[i, assignment[i]]}");
+                totalCost += matrix[i, assignment[i]];
+            }
+            Console.WriteLine($"Total assignment cost: {totalCost}");
+            break;
+            }
+        
+        // Step 3: Find minimum vertex cover using Konig's theorem
+        bool[] rowCovered = new bool[size];
+        bool[] colCovered = new bool[size];
+        
+        // Start with unmatched rows
+        bool[] visited = new bool[size];
+        for (int i = 0; i < size; i++)
+        {
+            if (!rowMatched[i])
+            {
+                DfsAlternatingPath(workMatrix, assignment, i, visited, rowCovered, colCovered, size);
+            }
+        }
+        
+        // Apply Konig's theorem: cover unvisited rows and visited columns
+        for (int i = 0; i < size; i++)
+        {
+            if (!visited[i]) rowCovered[i] = true;
+        }
+        
+        for (int j = 0; j < size; j++)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                if (visited[i] && workMatrix[i, j] == 0)
+                {
+                    colCovered[j] = true;
+                    break;
+                }
+            }
+        }
+        
+        // Count covering lines
+        int lineCount = 0;
+        for (int i = 0; i < size; i++) if (rowCovered[i]) lineCount++;
+        for (int j = 0; j < size; j++) if (colCovered[j]) lineCount++;
+        
+        Console.WriteLine($"Number of covering lines: {lineCount}");
+        
+        // Step 4: Create additional zeros
+        Console.WriteLine("Step 4: Create additional zeros");
+        
+        // Find minimum uncovered element
+        int minUncovered = int.MaxValue;
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                if (!rowCovered[i] && !colCovered[j] && workMatrix[i, j] < minUncovered)
+                {
+                    minUncovered = workMatrix[i, j];
+                }
+            }
+        }
+        
+        Console.WriteLine($"Smallest uncovered element: {minUncovered}");
+
+        // Adjust matrix
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                if (!rowCovered[i] && !colCovered[j])
+                {
+                    workMatrix[i, j] -= minUncovered;
+                }
+                else if (rowCovered[i] && colCovered[j])
+                {
+                    workMatrix[i, j] += minUncovered;
+                }
+            }
+        }
+        
+        Console.WriteLine("Matrix after adjustment:");
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                Console.Write(workMatrix[i, j] + "\t");
+            }
+            Console.WriteLine();
+        }
+    }
+    break;
+\end{lstlisting}
+
+\thispagestyle{fancy}
+\fancyhf{}
+\renewcommand{\footrulewidth}{0.3pt}
+\renewcommand{\footrule}{\hbox to\headwidth{\color{gray!50}\leaders\hrule height \footrulewidth\hfill}}
+\fancyfoot[C]{\footnotesize Wzorowano się na przedstawieniu algorytmu znajdującym sie na stronie: \href{https://www.hungarianalgorithm.com/examplehungarianalgorithm.php}{https://www.hungarianalgorithm.com/}}
+
+Listing \OznaczKod{task3} przedstawia kompletną implementację algorytmu węgierskiego w języku C\#. Algorytm wykonuje następujące kroki:
+
+\begin{enumerate}
+    \item \textbf{Kopiowanie macierzy wejściowej} - tworzenie kopii roboczej macierzy kosztów do manipulacji
+    \item \textbf{Redukcja wierszowa} - odejmowanie minimum z każdego wiersza od wszystkich elementów tego wiersza
+    \item \textbf{Redukcja kolumnowa} - odejmowanie minimum z każdej kolumny od wszystkich elementów tej kolumny (jeśli minimum > 0)
+    \item \textbf{Pętla główna algorytmu} zawierająca iteracje:
+    \begin{enumerate}
+        \item Wyszukiwanie maksymalnego skojarzenia - przypisywanie zer do niesparowanych wierszy i kolumn
+        \item Sprawdzenie warunki stopu - jeśli wszystkie wiersze są sparowane, algorytm kończy działanie
+        \item Zastosowanie twierdzenia Koniga - znajdowanie minimalnego pokrycia wierzchołków przy użyciu przeszukiwania DFS
+        \item Pokrywanie zer liniami - określenie nieodwiedzonych wierszy i odwiedzonych kolumn jako linie pokrywające
+        \item Modyfikacja macierzy - dodawanie/odejmowanie najmniejszego niepokrytego elementu:
+        \begin{itemize}
+            \item Odejmowanie od elementów niepokrytych (przecięcie niepokrytych wierszy i kolumn)
+            \item Dodawanie do elementów pokrytych podwójnie (przecięcie pokrytych wierszy i kolumn)
+        \end{itemize}
+    \end{enumerate}
+    \item \textbf{Wyświetlenie wyniku} - prezentacja optymalnego przydziału z obliczeniem całkowitego kosztu
+\end{enumerate}
+
+Algorytm gwarantuje znalezienie optymalnego rozwiązania w skończonej liczbie iteracji dzięki właściwościom redukcji macierzy i twierdzeniu Koniga o pokryciu wierzchołków w grafach dwudzielnych.
+\clearpage
+Poniższe zdjęcia (\OznaczZdjecie[Rys.]{task2_3_1} - \OznaczZdjecie[Rys.]{task2_3_4}) pokazuje działanie połączonego programu z funkcją redukcji tablicy oraz pełnym rozwiązaniem zagadnienia przydziału algorytmem węgierskim.
+    \begin{figure}[!htb]
+        \centering
+        \begin{minipage}{0.48\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{images/task2_3_1.png}
+            \caption{Macierz oryginalna i odjęcie minimum z wierszy}
+            \label{rys:task2_3_1}
+        \end{minipage}
+        \hfill
+        \begin{minipage}{0.48\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{images/task2_3_2.png}
+            \caption{Redukcja kolumnowa i wytyczenie linii przecinajacych zera (4 linie), wytyczenie najmniejszego elementu (3) i transformacja macierzy}
+            \label{rys:task2_3_2}
+        \end{minipage}
+        
+        \vspace{0.5cm}
+        
+        \begin{minipage}{0.48\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{images/task2_3_3.png}
+            \caption{2 iteracja}
+            \label{rys:task2_3_3}
+        \end{minipage}
+        \hfill
+        \begin{minipage}{0.48\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{images/task2_3_4.png}
+            \caption{Optymalne rozwiązanie}
+            \label{rys:task2_3_4}
+        \end{minipage}
+        \caption{Kroki algorytmu węgierskiego - zadania 2 i 3}
+        \label{rys:task2_3_grid}
+    \end{figure}
+\section*{Podsumowanie}
+Implementacja algorytmu węgierskiego była dosyć złożonym zadaniem, wymagającym dobrego zrozumienia jego natury, warunków brzegowych oraz efektywnego przeszukiwania macierzy. Pozwoliło to na poćwiczenie umiejętności programistycznych w C\# oraz znajdowanie wiadomości na temat algorytmu węgierskiego w dostępnych źródłach internetowych. Mimo początkowych trudności, udało się stworzyć działający program, który skutecznie rozwiązuje problem przydziału zadań pracownikom przy minimalnym koszcie.
+
+\end{document}
