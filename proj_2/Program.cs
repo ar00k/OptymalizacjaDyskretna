@@ -32,7 +32,7 @@ for (;;)
         {
             for (int j = 0; j < size; j++)
             {
-                matrix[i, j] = rand.Next(1, 16);
+                matrix[i, j] = rand.Next(100, 1000);
             }
         }
         break;
@@ -208,34 +208,29 @@ for (;;)
         Console.WriteLine();
     }
 
-    // Main algorithm loop
+    // Main algorithm loop with iteration limit
     int iteration = 0;
-    while (true)
+    int maxIterations = size * size; // Prevent infinite loops
+    
+    while (iteration < maxIterations)
     {
         iteration++;
         Console.WriteLine($"\nIteration {iteration}:");
         
-        // Find maximum matching
-        int[] assignment = new int[size];
-        for (int i = 0; i < size; i++) assignment[i] = -1;
+        // Find maximum matching using proper bipartite matching
+        int[] rowMatch = new int[size];
+        int[] colMatch = new int[size];
+        for (int i = 0; i < size; i++) { rowMatch[i] = -1; colMatch[i] = -1; }
         
-        bool[] rowMatched = new bool[size];
-        bool[] colMatched = new bool[size];
         int matchCount = 0;
         
-        // Try to find maximum matching using zeros
+        // Use augmenting path algorithm for maximum matching
         for (int i = 0; i < size; i++)
         {
-            for (int j = 0; j < size; j++)
+            bool[] visited = new bool[size];
+            if (FindAugmentingPath(workMatrix, i, visited, rowMatch, colMatch, size))
             {
-                if (workMatrix[i, j] == 0 && !rowMatched[i] && !colMatched[j])
-                {
-                    assignment[i] = j;
-                    rowMatched[i] = true;
-                    colMatched[j] = true;
-                    matchCount++;
-                    break;
-                }
+                matchCount++;
             }
         }
         
@@ -248,43 +243,54 @@ for (;;)
             Console.WriteLine("\nOptimal assignment found:");
             for (int i = 0; i < size; i++)
             {
-                Console.WriteLine($"Worker {i+1} -> Job {assignment[i]+1}, Cost: {matrix[i, assignment[i]]}");
-                totalCost += matrix[i, assignment[i]];
+                Console.WriteLine($"Worker {i+1} -> Job {rowMatch[i]+1}, Cost: {matrix[i, rowMatch[i]]}");
+                totalCost += matrix[i, rowMatch[i]];
             }
             Console.WriteLine($"Total assignment cost: {totalCost}");
+            
+            // Display assignment as 0,1 matrix
+            Console.WriteLine("\nAssignment matrix (1 = assigned, 0 = not assigned):");
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size; j++)
+                {
+                    if (rowMatch[i] == j)
+                    {
+                        Console.Write("1\t");
+                    }
+                    else
+                    {
+                        Console.Write("0\t");
+                    }
+                }
+                Console.WriteLine();
+            }
             break;
         }
         
-        // Step 3: Find minimum vertex cover using König's theorem
+        // Find vertex cover using König's theorem
         bool[] rowCovered = new bool[size];
         bool[] colCovered = new bool[size];
+        bool[] rowVisited = new bool[size];
+        bool[] colVisited = new bool[size];
         
-        // Start with unmatched rows
-        bool[] visited = new bool[size];
+        // Start DFS from unmatched rows
         for (int i = 0; i < size; i++)
         {
-            if (!rowMatched[i])
+            if (rowMatch[i] == -1)
             {
-                DfsAlternatingPath(workMatrix, assignment, i, visited, rowCovered, colCovered, size);
+                DfsKonig(workMatrix, i, rowMatch, colMatch, rowVisited, colVisited, size);
             }
         }
         
         // Apply König's theorem: cover unvisited rows and visited columns
         for (int i = 0; i < size; i++)
         {
-            if (!visited[i]) rowCovered[i] = true;
+            if (!rowVisited[i]) rowCovered[i] = true;
         }
-        
         for (int j = 0; j < size; j++)
         {
-            for (int i = 0; i < size; i++)
-            {
-                if (visited[i] && workMatrix[i, j] == 0)
-                {
-                    colCovered[j] = true;
-                    break;
-                }
-            }
+            if (colVisited[j]) colCovered[j] = true;
         }
         
         // Count covering lines
@@ -294,49 +300,67 @@ for (;;)
         
         Console.WriteLine($"Number of covering lines: {lineCount}");
         
-        // Step 4: Create additional zeros
-        Console.WriteLine("Step 4: Create additional zeros");
-        
-        // Find minimum uncovered element
-        int minUncovered = int.MaxValue;
-        for (int i = 0; i < size; i++)
+        // If we have exactly 'matchCount' lines, we need to create more zeros
+        if (lineCount == matchCount)
         {
-            for (int j = 0; j < size; j++)
+            // Find minimum uncovered element
+            int minUncovered = int.MaxValue;
+            bool foundUncovered = false;
+            
+            for (int i = 0; i < size; i++)
             {
-                if (!rowCovered[i] && !colCovered[j] && workMatrix[i, j] < minUncovered)
+                for (int j = 0; j < size; j++)
                 {
-                    minUncovered = workMatrix[i, j];
+                    if (!rowCovered[i] && !colCovered[j])
+                    {
+                        foundUncovered = true;
+                        if (workMatrix[i, j] < minUncovered)
+                        {
+                            minUncovered = workMatrix[i, j];
+                        }
+                    }
                 }
             }
-        }
-        
-        Console.WriteLine($"Smallest uncovered element: {minUncovered}");
+            
+            if (!foundUncovered)
+            {
+                Console.WriteLine("Error: No uncovered elements found but matching is not complete");
+                break;
+            }
+            
+            Console.WriteLine($"Smallest uncovered element: {minUncovered}");
 
-        // Adjust matrix
-        for (int i = 0; i < size; i++)
-        {
-            for (int j = 0; j < size; j++)
+            // Adjust matrix
+            for (int i = 0; i < size; i++)
             {
-                if (!rowCovered[i] && !colCovered[j])
+                for (int j = 0; j < size; j++)
                 {
-                    workMatrix[i, j] -= minUncovered;
-                }
-                else if (rowCovered[i] && colCovered[j])
-                {
-                    workMatrix[i, j] += minUncovered;
+                    if (!rowCovered[i] && !colCovered[j])
+                    {
+                        workMatrix[i, j] -= minUncovered;
+                    }
+                    else if (rowCovered[i] && colCovered[j])
+                    {
+                        workMatrix[i, j] += minUncovered;
+                    }
                 }
             }
-        }
-        
-        Console.WriteLine("Matrix after adjustment:");
-        for (int i = 0; i < size; i++)
-        {
-            for (int j = 0; j < size; j++)
+            
+            Console.WriteLine("Matrix after adjustment:");
+            for (int i = 0; i < size; i++)
             {
-                Console.Write(workMatrix[i, j] + "\t");
+                for (int j = 0; j < size; j++)
+                {
+                    Console.Write(workMatrix[i, j] + "\t");
+                }
+                Console.WriteLine();
             }
-            Console.WriteLine();
         }
+    }
+    
+    if (iteration >= maxIterations)
+    {
+        Console.WriteLine($"Algorithm stopped after {maxIterations} iterations to prevent infinite loop.");
     }
     break;
 
@@ -349,31 +373,40 @@ for (;;)
 }
 }
 
-// Add this helper method outside the switch statement (after the for loop)
-static void DfsAlternatingPath(int[,] matrix, int[] assignment, int row, bool[] visited, 
-                              bool[] rowCovered, bool[] colCovered, int size)
+// Helper method for finding augmenting paths in bipartite matching
+static bool FindAugmentingPath(int[,] matrix, int row, bool[] visited, int[] rowMatch, int[] colMatch, int size)
 {
-    if (visited[row]) return;
-    visited[row] = true;
-    
-    for (int j = 0; j < size; j++)
+    for (int col = 0; col < size; col++)
     {
-        if (matrix[row, j] == 0)
+        if (matrix[row, col] == 0 && !visited[col])
         {
-            // Find which row is matched to column j
-            int matchedRow = -1;
-            for (int i = 0; i < size; i++)
-            {
-                if (assignment[i] == j)
-                {
-                    matchedRow = i;
-                    break;
-                }
-            }
+            visited[col] = true;
             
-            if (matchedRow != -1)
+            if (colMatch[col] == -1 || FindAugmentingPath(matrix, colMatch[col], visited, rowMatch, colMatch, size))
             {
-                DfsAlternatingPath(matrix, assignment, matchedRow, visited, rowCovered, colCovered, size);
+                rowMatch[row] = col;
+                colMatch[col] = row;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+// Helper method for König's theorem DFS
+static void DfsKonig(int[,] matrix, int row, int[] rowMatch, int[] colMatch, bool[] rowVisited, bool[] colVisited, int size)
+{
+    if (rowVisited[row]) return;
+    rowVisited[row] = true;
+    
+    for (int col = 0; col < size; col++)
+    {
+        if (matrix[row, col] == 0 && !colVisited[col])
+        {
+            colVisited[col] = true;
+            if (colMatch[col] != -1)
+            {
+                DfsKonig(matrix, colMatch[col], rowMatch, colMatch, rowVisited, colVisited, size);
             }
         }
     }
