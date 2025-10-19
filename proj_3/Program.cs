@@ -65,11 +65,13 @@ void SolveGreedy(int[,] table, int size, int capacity)
             {
                 break;
             }
-            
+
         }
     }
     Console.WriteLine($"Całkowita wartość przedmiotów w plecaku: {TotalValue}");
 }
+
+
 
 
 Console.WriteLine("Podaj liczbę przedmiotów:");
