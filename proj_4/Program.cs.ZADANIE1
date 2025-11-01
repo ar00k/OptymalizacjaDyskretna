@@ -1,0 +1,111 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("=== PROBLEM KOMIWOJAŻERA - DOŁĄCZANIE NAJDALSZEGO WIERZCHOŁKA ===\n");
+
+    
+        Console.Write("Podaj liczbę miast: ");
+        int n = int.Parse(Console.ReadLine() ?? "0");
+
+    
+        double[,] A = new double[n, n];
+        Console.WriteLine("Podaj macierz odległości (n wierszy po n liczb, oddzielone spacją):");
+        for (int i = 0; i < n; i++)
+        {
+            string[] row = Console.ReadLine().Split();
+            for (int j = 0; j < n; j++)
+                A[i, j] = double.Parse(row[j]);
+        }
+
+    
+        int s = 0;
+        List<int> trasa = new List<int> { s };
+        bool[] odwiedzone = new bool[n];
+        odwiedzone[s] = true;
+
+    
+        double[] d = new double[n];
+        for (int i = 0; i < n; i++)
+            d[i] = (i == s) ? double.PositiveInfinity : A[s, i];
+
+        Console.WriteLine($"\nPoczątkowa tablica d = [{string.Join(", ", d.Select(x => x == double.PositiveInfinity ? "-" : x.ToString()))}]");
+
+        double dlugosc = 0;
+
+    
+        while (trasa.Count < n)
+        {
+        
+            int v = -1;
+            double maxD = double.MinValue;
+            for (int i = 0; i < n; i++)
+            {
+                if (!odwiedzone[i] && d[i] > maxD)
+                {
+                    maxD = d[i];
+                    v = i;
+                }
+            }
+
+            if (v == -1) break;
+
+            Console.WriteLine($"\nNajdalszy wierzchołek: {v + 1} (d = {maxD})");
+
+        
+            double bestDelta = double.MaxValue;
+            int insertPos = 0;
+
+        
+            if (!trasa.Contains(s))
+                trasa.Add(s);
+
+            for (int k = 0; k < trasa.Count; k++)
+            {
+                int i = trasa[k];
+                int j = (k + 1 == trasa.Count) ? s : trasa[k + 1];
+
+                double kij = A[i, v] + A[v, j] - A[i, j];
+                if (kij < bestDelta)
+                {
+                    bestDelta = kij;
+                    insertPos = k + 1;
+                }
+            }
+
+            trasa.Insert(insertPos, v);
+            odwiedzone[v] = true;
+            dlugosc += bestDelta;
+
+            Console.WriteLine($"Dodano wierzchołek {v + 1} (Δ = {bestDelta}), nowa trasa: ({string.Join(", ", trasa.Select(x => x + 1))})");
+
+        
+            for (int i = 0; i < n; i++)
+            {
+                if (!odwiedzone[i])
+                    d[i] = Math.Min(d[i], A[v, i]);
+                else
+                    d[i] = double.PositiveInfinity;
+            }
+
+            Console.WriteLine($"Nowa tablica d = [{string.Join(", ", d.Select(x => x == double.PositiveInfinity ? "-" : x.ToString()))}]");
+        }
+
+    
+        if (trasa.Last() != s)
+            trasa.Add(s);
+
+    
+        double total = 0;
+        for (int i = 0; i < trasa.Count - 1; i++)
+            total += A[trasa[i], trasa[i + 1]];
+
+        Console.WriteLine("\n=== WYNIK KOŃCOWY ===");
+        Console.WriteLine($"Trasa: ({string.Join(", ", trasa.Select(x => x + 1))})");
+        Console.WriteLine($"Całkowita długość trasy: {total}");
+    }
+}

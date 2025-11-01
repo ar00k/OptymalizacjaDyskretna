@@ -1,0 +1,3 @@
+=== WYNIK PROBLEMU KOMIWOJAŻERA ===
+Trasa: 1 -> 4 -> 3 -> 2 -> 1
+Całkowita długość: 15.90

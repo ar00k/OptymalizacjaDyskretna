@@ -1,0 +1,596 @@
+\documentclass[a4paper,12pt]{article}
+
+\newcommand*{\fg}[4][\textwidth]{
+    \begin{figure}[!htb]
+        \begin{center}
+            \includegraphics[width=#1]{#2}
+            \caption{#3}
+            \label{rys:#4}
+        \end{center}
+    \end{figure}
+}
+
+\newcommand*{\Oznacz}[2]{\ref{#1:#2} (s. \pageref{#1:#2})}
+\newcommand*{\OznaczZdjecie}[2][Rys.]{#1 \Oznacz{rys}{#2}}
+\newcommand*{\OznaczKod}[1]{\Oznacz{lst}{#1}}
+\newcommand*{\ListingFile}[3]{\lstinputlisting[caption=#1, label={lst:#2}, language=C++]{#3}}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[polish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\pagestyle{empty}
+\geometry{margin=0.5in}
+
+\lstdefinestyle{csharpstyle}{
+    language=[Sharp]C,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue!90!black}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{green!70!black},
+    numbers=left,
+    numberstyle=\ttfamily\tiny\color{gray}\raisebox{0.5ex},
+    stepnumber=1,
+    numbersep=5pt,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!5},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    captionpos=b,
+    linewidth=\linewidth,
+    xleftmargin=20pt,
+    xrightmargin=5pt,
+    framexleftmargin=15pt,
+    framexrightmargin=5pt,
+    rulecolor=\color{blue!30},
+    literate=  
+      {ą}{{\k{a}}}1 
+      {ć}{{\'c}}1 
+      {ę}{{\k{e}}}1 
+      {ł}{{\l}}1 
+      {ń}{{\'n}}1
+      {ó}{{\'o}}1 
+      {ś}{{\'s}}1 
+      {ź}{{\'z}}1 
+      {ż}{{\.{z}}}1
+      {Ą}{{\k{A}}}1 
+      {Ć}{{\'C}}1 
+      {Ę}{{\k{E}}}1 
+      {Ł}{{\L}}1
+      {Ń}{{\'N}}1 
+      {Ó}{{\'O}}1 
+      {Ś}{{\'S}}1 
+      {Ź}{{\'Z}}1 
+      {Ż}{{\.{Z}}}1,
+    emph={Console, WriteLine, ReadLine, ToString, int, string, double, float, bool, class, interface, 
+          public, private, protected, static, void, new, get, set, using, namespace, return, if, else, 
+          for, foreach, while, do, try, catch, finally, switch, case, break, continue, this, base, 
+          var, List, Dictionary, Task, async, await},
+    emphstyle=\color{magenta!70!black},
+    lineskip=2pt,
+    aboveskip=10pt,
+    belowskip=10pt,
+    numberblanklines=false
+}
+
+\captionsetup[lstlisting]{justification=centering}
+\newcommand{\invisiblephantom}{\phantom{(X)}}
+
+\begin{document}
+
+\begin{table}[]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|lll|}
+\hline
+\multicolumn{3}{|c|}{\begin{tabular}[c]{@{}c@{}}Wydział Nauk Inżynieryjnych ANS w Nowym Sączu \\ Optymalizacja dyskretna - projekt\end{tabular}} \\ \hline
+\multicolumn{2}{|l|}{\begin{tabular}[c]{@{}l@{}}Temat: Problem komiwojażera - dołączanie najdalszego wierzchołka\\\end{tabular}} & \begin{tabular}[c]{@{}l@{}}Symbol:\\ OD\_P4\end{tabular} \\ \hline
+\multicolumn{1}{|l|}{\begin{tabular}[c]{@{}l@{}}Nazwisko i imię:\\ \\ Ryczek Arkadiusz\end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}}Ocena sprawozdania:\\  \\ \invisiblephantom\end{tabular}} & \begin{tabular}[c]{@{}l@{}}Zaliczenie:\\ \\  \invisiblephantom\end{tabular} \\ \hline
+\multicolumn{1}{|l|}{\begin{tabular}[c]{@{}l@{}}Data wykonania\\ ćwiczenia:\end{tabular}} & \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}Oceniane efekty uczenia się:\\ EUU1=……………… ,EUU2=……………… ,EUU3=…………………, EUK1=………………….\end{tabular}} \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\section*{Cel zajęć}
+Celem zajęć była implementacja algorytmu rozwiązującego problem komiwojażera (TSP - Travelling Salesman Problem) metodą dołączania najdalszego wierzchołka oraz zastosowanie tego algorytmu do optymalizacji pracy automatu wiertarskiego.
+
+\section*{Problem komiwojażera - podstawy teoretyczne}
+Problem komiwojażera polega na znalezieniu najkrótszej trasy przechodzącej przez wszystkie wierzchołki grafu (miasta) dokładnie raz i powracającej do wierzchołka startowego. Formalnie, dany jest graf pełny z wagami na krawędziach (odległościami między miastami). Należy znaleźć cykl Hamiltona o minimalnej sumie wag.
+
+Metoda dołączania najdalszego wierzchołka (farthest insertion) jest algorytmem zachłannym, który rozpoczyna od trasy zawierającej dwa najbliższe wierzchołki, a następnie iteracyjnie dołącza do trasy wierzchołek najbardziej oddalony od bieżącej trasy, wstawiając go w optymalne miejsce.
+
+\section*{Algorytm dołączania najdalszego wierzchołka}
+\subsection*{Pseudokod}
+\begin{verbatim}
+1. Wybierz wierzchołek startowy s
+2. Inicjalizuj trasę T = [s], zbiór odwiedzonych V = {s}
+3. Inicjalizuj tablicę d odległości od trasy:
+   dla każdego wierzchołka i: d[i] = odległość od s do i
+4. Dopóki |V| < n:
+   a) Znajdź wierzchołek v nie należący do V o maksymalnej wartości d[v]
+   b) Znajdź pozycję w trasie T, gdzie wstawienie v minimalizuje wzrost długości:
+        delta = A[i,v] + A[v,j] - A[i,j]
+   c) Wstaw v do T w znalezionej pozycji
+   d) Zaktualizuj V = V u {v}
+   e) Zaktualizuj tablicę d: dla każdego wierzchołka i nieodwiedzonego
+        d[i] = min(d[i], A[v,i])
+5. Dodaj s na koniec trasy aby zamknąć cykl
+\end{verbatim}
+
+\subsection*{Przykład}
+Dana jest macierz odległości między 5 miastami:
+\[
+\begin{bmatrix}
+0 & 2 & 4 & 7 & 3\\
+2 & 0 & 4 & 5 & 7\\
+8 & 4 & 0 & 7 & 3\\
+5 & 9 & 2 & 0 & 7\\
+4 & 8 & 1 & 4 & 0
+\end{bmatrix}
+\]
+
+Algorytm wykonuje kolejne iteracje dołączając wierzchołki 4, 5, 2 i 3, uzyskując końcową trasę (1, 2, 3, 5, 4, 1) o długości 18.
+
+\section*{Implementacja algorytmu dla problemu ogólnego}
+Poniżej przedstawiono implementację algorytmu dołączania najdalszego wierzchołka w języku C\#.
+
+\begin{lstlisting}[style=csharpstyle, caption={Implementacja algorytmu dołączania najdalszego wierzchołka dla problemu komiwojażera.}, label={lst:tsp}]
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("=== PROBLEM KOMIWOJAŻERA - DOŁĄCZANIE NAJDALSZEGO WIERZCHOŁKA ===\n");
+
+        Console.Write("Podaj liczbę miast: ");
+        int n = int.Parse(Console.ReadLine() ?? "0");
+
+        double[,] A = new double[n, n];
+        Console.WriteLine("Podaj macierz odległości (n wierszy po n liczb, oddzielone spacją):");
+        for (int i = 0; i < n; i++)
+        {
+            string[] row = Console.ReadLine().Split();
+            for (int j = 0; j < n; j++)
+                A[i, j] = double.Parse(row[j]);
+        }
+
+        int s = 0;
+        List<int> trasa = new List<int> { s };
+        bool[] odwiedzone = new bool[n];
+        odwiedzone[s] = true;
+
+        double[] d = new double[n];
+        for (int i = 0; i < n; i++)
+            d[i] = (i == s) ? double.PositiveInfinity : A[s, i];
+
+        Console.WriteLine($"\nPoczątkowa tablica d = [{string.Join(", ", d.Select(x => x == double.PositiveInfinity ? "-" : x.ToString()))}]");
+
+        double dlugosc = 0;
+
+        while (trasa.Count < n)
+        {
+            int v = -1;
+            double maxD = double.MinValue;
+            for (int i = 0; i < n; i++)
+            {
+                if (!odwiedzone[i] && d[i] > maxD)
+                {
+                    maxD = d[i];
+                    v = i;
+                }
+            }
+
+            if (v == -1) break;
+
+            Console.WriteLine($"\nNajdalszy wierzchołek: {v + 1} (d = {maxD})");
+
+            double bestDelta = double.MaxValue;
+            int insertPos = 0;
+
+            if (!trasa.Contains(s))
+                trasa.Add(s);
+
+            for (int k = 0; k < trasa.Count; k++)
+            {
+                int i = trasa[k];
+                int j = (k + 1 == trasa.Count) ? s : trasa[k + 1];
+
+                double kij = A[i, v] + A[v, j] - A[i, j];
+                if (kij < bestDelta)
+                {
+                    bestDelta = kij;
+                    insertPos = k + 1;
+                }
+            }
+
+            trasa.Insert(insertPos, v);
+            odwiedzone[v] = true;
+            dlugosc += bestDelta;
+
+            Console.WriteLine($"Dodano wierzchołek {v + 1} (delta = {bestDelta}), nowa trasa: ({string.Join(", ", trasa.Select(x => x + 1))})");
+
+            for (int i = 0; i < n; i++)
+            {
+                if (!odwiedzone[i])
+                    d[i] = Math.Min(d[i], A[v, i]);
+                else
+                    d[i] = double.PositiveInfinity;
+            }
+
+            Console.WriteLine($"Nowa tablica d = [{string.Join(", ", d.Select(x => x == double.PositiveInfinity ? "-" : x.ToString()))}]");
+        }
+
+        if (trasa.Last() != s)
+            trasa.Add(s);
+
+        double total = 0;
+        for (int i = 0; i < trasa.Count - 1; i++)
+            total += A[trasa[i], trasa[i + 1]];
+
+        Console.WriteLine("\n=== WYNIK KOŃCOWY ===");
+        Console.WriteLine($"Trasa: ({string.Join(", ", trasa.Select(x => x + 1))})");
+        Console.WriteLine($"Całkowita długość trasy: {total}");
+    }
+}
+\end{lstlisting}
+
+\subsection*{Opis implementacji dla problemu ogólnego}
+Program składa się z następujących kluczowych elementów:
+\begin{itemize}
+    \item \textbf{Wczytywanie danych} - użytkownik podaje liczbę miast oraz macierz odległości między nimi
+    \item \textbf{Inicjalizacja} - wybór wierzchołka startowego, utworzenie początkowej trasy i tablicy odległości
+    \item \textbf{Główna pętla algorytmu} - iteracyjne dołączanie najdalszych wierzchołków:
+    \begin{itemize}
+        \item Znajdowanie wierzchołka o maksymalnej odległości od bieżącej trasy
+        \item Wyznaczanie optymalnej pozycji wstawienia tego wierzchołka
+        \item Aktualizacja trasy i tablicy odległości
+    \end{itemize}
+    \item \textbf{Prezentacja wyników} - wyświetlenie końcowej trasy z całkowitą długością
+    \item \textbf{Szczegółowe logowanie} - program pokazuje każdy krok algorytmu wraz z wartościami tablicy odległości
+\end{itemize}
+
+Program umożliwia śledzenie procesu optymalizacji poprzez wyświetlanie kolejnych iteracji, co pozwala na zrozumienie działania algorytmu dołączania najdalszego wierzchołka \OznaczZdjecie[Rys.]{komiFirst}.
+
+
+\fg[0.7\linewidth]{images/image.png}{Wynik algorytmu komiwojażera}{komiFirst}
+
+\section*{Implementacja dla automatu wiertarskiego}
+Poniżej przedstawiono specjalizowaną implementację algorytmu dla problemu automatu wiertarskiego.
+
+\begin{lstlisting}[style=csharpstyle, caption={Implementacja algorytmu dla automatu wiertarskiego.}, label={lst:wiertarka}]
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+
+class Program
+{
+    class Punkt
+    {
+        public int Id { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public string Nazwa { get; set; }
+        
+        public Punkt(int id, double x, double y, string nazwa = "")
+        {
+            Id = id;
+            X = x;
+            Y = y;
+            Nazwa = nazwa;
+        }
+    }
+
+    static void Main()
+    {
+        Console.WriteLine("=== AUTOMAT WIERTARSKI - OPTYMALIZACJA TRASY ===\n");
+
+        List<Punkt> punkty = new List<Punkt>();
+        Punkt startowy = null;
+
+        Console.WriteLine("Wybierz metodę wczytywania danych:");
+        Console.WriteLine("1 - Z klawiatury");
+        Console.WriteLine("2 - Losowe współrzędne");
+        Console.WriteLine("3 - Z pliku");
+        Console.Write("Twój wybór: ");
+        
+        int wybor = int.Parse(Console.ReadLine() ?? "1");
+
+        switch (wybor)
+        {
+            case 1:
+                WczytajZKlawiatury(ref punkty, ref startowy);
+                break;
+            case 2:
+                GenerujLosowePunkty(ref punkty, ref startowy);
+                break;
+            case 3:
+                WczytajZPliku(ref punkty, ref startowy);
+                break;
+            default:
+                WczytajZKlawiatury(ref punkty, ref startowy);
+                break;
+        }
+
+        double[,] macierzOdleglosci = UtworzMacierzOdleglosci(punkty);
+
+        Console.WriteLine("\n=== MACIERZ ODLEGŁOŚCI ===");
+        WyswietlMacierz(macierzOdleglosci, punkty);
+
+        List<int> optymalnaTrasa = RozwiazTSP(macierzOdleglosci, 0);
+
+        Console.WriteLine("\n=== WYNIK OPTYMALIZACJI ===");
+        WyswietlTrase(optymalnaTrasa, punkty, macierzOdleglosci);
+    }
+
+    static void WczytajZKlawiatury(ref List<Punkt> punkty, ref Punkt startowy)
+    {
+        Console.WriteLine("\n--- Wczytywanie z klawiatury ---");
+        
+        Console.Write("Podaj współrzędne punktu A (x0 y0): ");
+        string[] a = Console.ReadLine().Split();
+        double x0 = double.Parse(a[0]);
+        double y0 = double.Parse(a[1]);
+        
+        Console.Write("Podaj współrzędne punktu B (xn yn): ");
+        string[] b = Console.ReadLine().Split();
+        double xn = double.Parse(b[0]);
+        double yn = double.Parse(b[1]);
+
+        startowy = new Punkt(0, x0, y0, "START");
+        punkty.Add(startowy);
+
+        Console.Write("Podaj liczbę otworów: ");
+        int n = int.Parse(Console.ReadLine());
+
+        for (int i = 0; i < n; i++)
+        {
+            Console.Write($"Podaj współrzędne otworu {i + 1} (x y): ");
+            string[] otwor = Console.ReadLine().Split();
+            double x = double.Parse(otwor[0]);
+            double y = double.Parse(otwor[1]);
+            punkty.Add(new Punkt(i + 1, x, y, $"OTWÓR_{i + 1}"));
+        }
+    }
+
+    static void GenerujLosowePunkty(ref List<Punkt> punkty, ref Punkt startowy)
+    {
+        Console.WriteLine("\n--- Generowanie losowych punktów ---");
+        
+        Random rand = new Random();
+        
+        double x0 = rand.NextDouble() * 100;
+        double y0 = rand.NextDouble() * 100;
+        double xn = x0 + rand.NextDouble() * 50 + 10;
+        double yn = y0 + rand.NextDouble() * 50 + 10;
+
+        startowy = new Punkt(0, x0, y0, "START");
+        punkty.Add(startowy);
+
+        Console.WriteLine($"Materiał: A({x0:F2}, {y0:F2}) - B({xn:F2}, {yn:F2})");
+
+        int n = rand.Next(5, 15);
+        Console.WriteLine($"Liczba otworów: {n}");
+
+        for (int i = 0; i < n; i++)
+        {
+            double x = x0 + rand.NextDouble() * (xn - x0);
+            double y = y0 + rand.NextDouble() * (yn - y0);
+            punkty.Add(new Punkt(i + 1, x, y, $"OTWÓR_{i + 1}"));
+            Console.WriteLine($"Otwór {i + 1}: ({x:F2}, {y:F2})");
+        }
+    }
+
+    static void WczytajZPliku(ref List<Punkt> punkty, ref Punkt startowy)
+    {
+        Console.WriteLine("\n--- Wczytywanie z pliku ---");
+        Console.Write("Podaj ścieżkę do pliku: ");
+        string sciezka = Console.ReadLine();
+
+        try
+        {
+            string[] linie = File.ReadAllLines(sciezka);
+            
+            string[] a = linie[0].Split();
+            double x0 = double.Parse(a[0]);
+            double y0 = double.Parse(a[1]);
+            
+            string[] b = linie[1].Split();
+            double xn = double.Parse(b[0]);
+            double yn = double.Parse(b[1]);
+
+            startowy = new Punkt(0, x0, y0, "START");
+            punkty.Add(startowy);
+
+            for (int i = 2; i < linie.Length; i++)
+            {
+                string[] otwor = linie[i].Split();
+                double x = double.Parse(otwor[0]);
+                double y = double.Parse(otwor[1]);
+                punkty.Add(new Punkt(i - 1, x, y, $"OTWÓR_{i - 1}"));
+            }
+
+            Console.WriteLine($"Wczytano {punkty.Count - 1} otworów z pliku");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Błąd wczytywania pliku: {ex.Message}");
+            GenerujLosowePunkty(ref punkty, ref startowy);
+        }
+    }
+
+    static double[,] UtworzMacierzOdleglosci(List<Punkt> punkty)
+    {
+        int n = punkty.Count;
+        double[,] macierz = new double[n, n];
+
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (i == j)
+                {
+                    macierz[i, j] = 0;
+                }
+                else
+                {
+                    double dx = punkty[i].X - punkty[j].X;
+                    double dy = punkty[i].Y - punkty[j].Y;
+                    macierz[i, j] = Math.Sqrt(dx * dx + dy * dy);
+                }
+            }
+        }
+
+        return macierz;
+    }
+
+    static List<int> RozwiazTSP(double[,] A, int startIndex)
+    {
+        int n = A.GetLength(0);
+        List<int> trasa = new List<int> { startIndex };
+        bool[] odwiedzone = new bool[n];
+        odwiedzone[startIndex] = true;
+
+        double[] d = new double[n];
+        for (int i = 0; i < n; i++)
+            d[i] = (i == startIndex) ? double.PositiveInfinity : A[startIndex, i];
+
+        while (trasa.Count < n)
+        {
+            int v = -1;
+            double maxD = double.MinValue;
+            for (int i = 0; i < n; i++)
+            {
+                if (!odwiedzone[i] && d[i] > maxD)
+                {
+                    maxD = d[i];
+                    v = i;
+                }
+            }
+
+            if (v == -1) break;
+
+            double bestDelta = double.MaxValue;
+            int insertPos = 0;
+
+            for (int k = 0; k < trasa.Count; k++)
+            {
+                int i = trasa[k];
+                int j = (k + 1 == trasa.Count) ? trasa[0] : trasa[k + 1];
+
+                double delta = A[i, v] + A[v, j] - A[i, j];
+                if (delta < bestDelta)
+                {
+                    bestDelta = delta;
+                    insertPos = k + 1;
+                }
+            }
+
+            trasa.Insert(insertPos, v);
+            odwiedzone[v] = true;
+
+            for (int i = 0; i < n; i++)
+            {
+                if (!odwiedzone[i])
+                    d[i] = Math.Min(d[i], A[v, i]);
+            }
+        }
+
+        trasa.Add(startIndex);
+        return trasa;
+    }
+
+    static void WyswietlMacierz(double[,] macierz, List<Punkt> punkty)
+    {
+        int n = macierz.GetLength(0);
+        
+        Console.Write("       ");
+        for (int i = 0; i < n; i++)
+            Console.Write($"{punkty[i].Nazwa,-8}");
+        Console.WriteLine();
+
+        for (int i = 0; i < n; i++)
+        {
+            Console.Write($"{punkty[i].Nazwa,-6} ");
+            for (int j = 0; j < n; j++)
+            {
+                Console.Write($"{macierz[i, j],6:F2} ");
+            }
+            Console.WriteLine();
+        }
+    }
+
+    static void WyswietlTrase(List<int> trasa, List<Punkt> punkty, double[,] macierz)
+    {
+        double totalDlugosc = 0;
+        
+        Console.WriteLine("Optymalna kolejność wiercenia:");
+        for (int i = 0; i < trasa.Count - 1; i++)
+        {
+            int od = trasa[i];
+            int dokad = trasa[i + 1];
+            double odleglosc = macierz[od, dokad];
+            totalDlugosc += odleglosc;
+            
+            Console.WriteLine($"{i + 1}. {punkty[od].Nazwa} -> {punkty[dokad].Nazwa} ({odleglosc:F2})");
+        }
+        
+        Console.WriteLine($"\nCałkowita długość trasy: {totalDlugosc:F2}");
+        Console.WriteLine($"Liczba punktów: {trasa.Count - 1}");
+    }
+}
+\end{lstlisting}
+
+\subsection*{Opis implementacji dla automatu wiertarskiego}
+Program realizuje optymalizację trasy automatu wiertarskiego poprzez zastosowanie algorytmu dołączania najdalszego wierzchołka. Implementacja składa się z następujących elementów:
+
+\begin{itemize}
+    \item \textbf{Struktura danych} - Klasa \texttt{Punkt} przechowuje współrzędne (X, Y), identyfikator oraz nazwę każdego punktu wiercenia
+    
+    \item \textbf{Wczytywanie danych} - Program oferuje trzy sposoby wprowadzania danych:
+    \begin{itemize}
+        \item Wczytywanie z klawiatury - interaktywne wprowadzanie współrzędnych
+        \item Generowanie losowe - automatyczne tworzenie przykładowych danych testowych
+        \item Wczytywanie z pliku - import danych z pliku tekstowego
+    \end{itemize}
+    
+    \item \textbf{Obliczanie odległości} - Utworzenie macierzy odległości na podstawie wzoru euklidesowego:
+    $$d_{ij} = \sqrt{(x_i - x_j)^2 + (y_i - y_j)^2}$$
+    
+    \item \textbf{Algorytm optymalizacji} - Zastosowanie metody dołączania najdalszego wierzchołka z uwzględnieniem specyfiki problemu wiertarskiego
+    
+    \item \textbf{Punkt referencyjny} - Uwzględnienie punktu startowego A $(x_0, y_0)$ jako początku i końca całej trasy wiercenia
+    
+    \item \textbf{Prezentacja wyników} - Wyświetlenie:
+    \begin{itemize}
+        \item Optymalnej kolejności wiercenia otworów
+        \item Odległości między kolejnymi punktami
+        \item Całkowitej długości trasy
+        \item Liczby punktów do przetworzenia
+    \end{itemize}
+\end{itemize}
+
+Program umożliwia praktyczne zastosowanie algorytmu komiwojażera do optymalizacji pracy automatu wiertarskiego, minimalizując czas przejazdu narzędzia między otworami i zwiększając efektywność procesu produkcyjnego.
+
+
+\section*{Wyniki}
+Dla przykładowych danych automatu wiertarskiego program wyznacza optymalną kolejność wiercenia otworów minimalizującą całkowitą drogę przejazdu narzędzia. Algorytm skutecznie rozwiązuje problem optymalizacji trasy dla automatu wiertarskiego, redukując czas wykonania operacji \OznaczZdjecie[Rys.]{komiFScnd}.
+\fg[0.7\linewidth]{images/image2.png}{Wynik algorytmu dla automatu wiertarskiego}{komiFScnd}
+\end{document}

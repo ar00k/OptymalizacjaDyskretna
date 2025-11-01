@@ -1,0 +1,299 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+
+class Program
+{
+    class Punkt
+    {
+        public int Id { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public string Nazwa { get; set; }
+        
+        public Punkt(int id, double x, double y, string nazwa = "")
+        {
+            Id = id;
+            X = x;
+            Y = y;
+            Nazwa = nazwa;
+        }
+    }
+
+    static void Main()
+    {
+        Console.WriteLine("=== AUTOMAT WIERTARSKI - OPTYMALIZACJA TRASY ===\n");
+
+        List<Punkt> punkty = new List<Punkt>();
+        Punkt startowy = null;
+
+        
+        Console.WriteLine("Wybierz metodę wczytywania danych:");
+        Console.WriteLine("1 - Z klawiatury");
+        Console.WriteLine("2 - Losowe współrzędne");
+        Console.WriteLine("3 - Z pliku");
+        Console.Write("Twój wybór: ");
+        
+        int wybor = int.Parse(Console.ReadLine() ?? "1");
+
+        switch (wybor)
+        {
+            case 1:
+                WczytajZKlawiatury(ref punkty, ref startowy);
+                break;
+            case 2:
+                GenerujLosowePunkty(ref punkty, ref startowy);
+                break;
+            case 3:
+                WczytajZPliku(ref punkty, ref startowy);
+                break;
+            default:
+                Console.WriteLine("Nieprawidłowy wybór, używam wczytywania z klawiatury");
+                WczytajZKlawiatury(ref punkty, ref startowy);
+                break;
+        }
+
+        
+        double[,] macierzOdleglosci = UtworzMacierzOdleglosci(punkty);
+
+        Console.WriteLine("\n=== MACIERZ ODLEGŁOŚCI ===");
+        WyswietlMacierz(macierzOdleglosci, punkty);
+
+        
+        List<int> optymalnaTrasa = RozwiazTSP(macierzOdleglosci, 0); 
+
+        Console.WriteLine("\n=== WYNIK OPTYMALIZACJI ===");
+        WyswietlTrase(optymalnaTrasa, punkty, macierzOdleglosci);
+    }
+
+    static void WczytajZKlawiatury(ref List<Punkt> punkty, ref Punkt startowy)
+    {
+        Console.WriteLine("\n--- Wczytywanie z klawiatury ---");
+        
+        
+        Console.Write("Podaj współrzędne punktu A (x0 y0): ");
+        string[] a = Console.ReadLine().Split();
+        double x0 = double.Parse(a[0]);
+        double y0 = double.Parse(a[1]);
+        
+        Console.Write("Podaj współrzędne punktu B (xn yn): ");
+        string[] b = Console.ReadLine().Split();
+        double xn = double.Parse(b[0]);
+        double yn = double.Parse(b[1]);
+
+        startowy = new Punkt(0, x0, y0, "START");
+        punkty.Add(startowy);
+
+        
+        Console.Write("Podaj liczbę otworów: ");
+        int n = int.Parse(Console.ReadLine());
+
+        
+        for (int i = 0; i < n; i++)
+        {
+            Console.Write($"Podaj współrzędne otworu {i + 1} (x y): ");
+            string[] otwor = Console.ReadLine().Split();
+            double x = double.Parse(otwor[0]);
+            double y = double.Parse(otwor[1]);
+            punkty.Add(new Punkt(i + 1, x, y, $"OTWÓR_{i + 1}"));
+        }
+    }
+
+    static void GenerujLosowePunkty(ref List<Punkt> punkty, ref Punkt startowy)
+    {
+        Console.WriteLine("\n--- Generowanie losowych punktów ---");
+        
+        Random rand = new Random();
+        
+        
+        double x0 = rand.NextDouble() * 100;
+        double y0 = rand.NextDouble() * 100;
+        double xn = x0 + rand.NextDouble() * 50 + 10;
+        double yn = y0 + rand.NextDouble() * 50 + 10;
+
+        startowy = new Punkt(0, x0, y0, "START");
+        punkty.Add(startowy);
+
+        Console.WriteLine($"Materiał: A({x0:F2}, {y0:F2}) - B({xn:F2}, {yn:F2})");
+
+        
+        int n = rand.Next(5, 15);
+        Console.WriteLine($"Liczba otworów: {n}");
+
+        
+        for (int i = 0; i < n; i++)
+        {
+            double x = x0 + rand.NextDouble() * (xn - x0);
+            double y = y0 + rand.NextDouble() * (yn - y0);
+            punkty.Add(new Punkt(i + 1, x, y, $"OTWÓR_{i + 1}"));
+            Console.WriteLine($"Otwór {i + 1}: ({x:F2}, {y:F2})");
+        }
+    }
+
+    static void WczytajZPliku(ref List<Punkt> punkty, ref Punkt startowy)
+    {
+        Console.WriteLine("\n--- Wczytywanie z pliku ---");
+        Console.Write("Podaj ścieżkę do pliku: ");
+        string sciezka = Console.ReadLine();
+
+        try
+        {
+            string[] linie = File.ReadAllLines(sciezka);
+            
+            
+            string[] a = linie[0].Split();
+            double x0 = double.Parse(a[0]);
+            double y0 = double.Parse(a[1]);
+            
+            
+            string[] b = linie[1].Split();
+            double xn = double.Parse(b[0]);
+            double yn = double.Parse(b[1]);
+
+            startowy = new Punkt(0, x0, y0, "START");
+            punkty.Add(startowy);
+
+            
+            for (int i = 2; i < linie.Length; i++)
+            {
+                string[] otwor = linie[i].Split();
+                double x = double.Parse(otwor[0]);
+                double y = double.Parse(otwor[1]);
+                punkty.Add(new Punkt(i - 1, x, y, $"OTWÓR_{i - 1}"));
+            }
+
+            Console.WriteLine($"Wczytano {punkty.Count - 1} otworów z pliku");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Błąd wczytywania pliku: {ex.Message}");
+            Console.WriteLine("Używam danych losowych...");
+            GenerujLosowePunkty(ref punkty, ref startowy);
+        }
+    }
+
+    static double[,] UtworzMacierzOdleglosci(List<Punkt> punkty)
+    {
+        int n = punkty.Count;
+        double[,] macierz = new double[n, n];
+
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                if (i == j)
+                {
+                    macierz[i, j] = 0;
+                }
+                else
+                {
+                    double dx = punkty[i].X - punkty[j].X;
+                    double dy = punkty[i].Y - punkty[j].Y;
+                    macierz[i, j] = Math.Sqrt(dx * dx + dy * dy);
+                }
+            }
+        }
+
+        return macierz;
+    }
+
+    static List<int> RozwiazTSP(double[,] A, int startIndex)
+    {
+        int n = A.GetLength(0);
+        List<int> trasa = new List<int> { startIndex };
+        bool[] odwiedzone = new bool[n];
+        odwiedzone[startIndex] = true;
+
+        double[] d = new double[n];
+        for (int i = 0; i < n; i++)
+            d[i] = (i == startIndex) ? double.PositiveInfinity : A[startIndex, i];
+
+        while (trasa.Count < n)
+        {
+            
+            int v = -1;
+            double maxD = double.MinValue;
+            for (int i = 0; i < n; i++)
+            {
+                if (!odwiedzone[i] && d[i] > maxD)
+                {
+                    maxD = d[i];
+                    v = i;
+                }
+            }
+
+            if (v == -1) break;
+
+            
+            double bestDelta = double.MaxValue;
+            int insertPos = 0;
+
+            for (int k = 0; k < trasa.Count; k++)
+            {
+                int i = trasa[k];
+                int j = (k + 1 == trasa.Count) ? trasa[0] : trasa[k + 1];
+
+                double delta = A[i, v] + A[v, j] - A[i, j];
+                if (delta < bestDelta)
+                {
+                    bestDelta = delta;
+                    insertPos = k + 1;
+                }
+            }
+
+            trasa.Insert(insertPos, v);
+            odwiedzone[v] = true;
+
+            
+            for (int i = 0; i < n; i++)
+            {
+                if (!odwiedzone[i])
+                    d[i] = Math.Min(d[i], A[v, i]);
+            }
+        }
+
+        
+        trasa.Add(startIndex);
+        return trasa;
+    }
+
+    static void WyswietlMacierz(double[,] macierz, List<Punkt> punkty)
+    {
+        int n = macierz.GetLength(0);
+        
+        Console.Write("       ");
+        for (int i = 0; i < n; i++)
+            Console.Write($"{punkty[i].Nazwa,-8}");
+        Console.WriteLine();
+
+        for (int i = 0; i < n; i++)
+        {
+            Console.Write($"{punkty[i].Nazwa,-6} ");
+            for (int j = 0; j < n; j++)
+            {
+                Console.Write($"{macierz[i, j],6:F2} ");
+            }
+            Console.WriteLine();
+        }
+    }
+
+    static void WyswietlTrase(List<int> trasa, List<Punkt> punkty, double[,] macierz)
+    {
+        double totalDlugosc = 0;
+        
+        Console.WriteLine("Optymalna kolejność wiercenia:");
+        for (int i = 0; i < trasa.Count - 1; i++)
+        {
+            int od = trasa[i];
+            int dokad = trasa[i + 1];
+            double odleglosc = macierz[od, dokad];
+            totalDlugosc += odleglosc;
+            
+            Console.WriteLine($"{i + 1}. {punkty[od].Nazwa} -> {punkty[dokad].Nazwa} ({odleglosc:F2})");
+        }
+        
+        Console.WriteLine($"\nCałkowita długość trasy: {totalDlugosc:F2}");
+        Console.WriteLine($"Liczba punktów: {trasa.Count - 1}"); 
+    }
+}
